@@ -1,0 +1,4 @@
+| Method                   | Description                        | Instance Variables | Class Methods | Other Methods             | Line count |
+|--------------------------|------------------------------------|--------------------|---------------|---------------------------|------------|
+| Main()                   | Empty Constructor                  |                    |               |                           | 0          |
+| void main(String[] args) | Main: Prints description of level. |                    |               | level.getLevelDescription | 2          |

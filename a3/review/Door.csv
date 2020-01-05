@@ -1,0 +1,96 @@
+Method,Description,Instance Variables,Class Methods,Other Methods,Line count
+Door(),"
+Creates a random door object.
+
+","spaces
+","createDoor, createDoorDesc
+",,3
+Door(boolean isAnArchway),"
+Creates a door object which is an archway.
+
+","spaces
+","setArchway, createDoorDesc
+",,3
+void addTrap(),"
+Sets a trap to the door.
+
+","isTrapped, trapDesc
+",,"trap.chooseTrap, trap.getDescription
+",5
+void setOpen(boolean flag),"
+Sets door open if flag is true.
+
+","isOpen, isArchway",,,4
+void setArchway(boolean flag),"
+Sets door to archway if flag is true.
+
+","isArchway, isOpen, isTrapped, isLocked
+",,,7
+void setLinked(boolean flag),"
+Sets boolean isLinked.
+
+","isLinked
+",,,1
+boolean isTrapped(),"
+Returns boolean isTrapped.
+
+","isTrapped
+",,,1
+boolean isLinked(),"
+Returns boolean isLinked.
+
+","isLinked
+",,,1
+boolean isOpen(),"
+Returns boolean isOpen.
+
+","isOpen
+",,,1
+boolean isArchway(),"
+Returns boolean isArchway.
+
+","isArchway
+",,,1
+String getTrapDescription(),"
+Returns trap description.
+
+","trapDesc
+",,,1
+ArrayList<Space> getSpaces(),"
+Returns spaces linked to door.
+
+","spaces
+",,,1
+void addSpace(Space space),"
+Adds a single space connection to the door.
+
+","spaces
+",,"spaces.add
+",2
+String getDescription(),"
+Returns description of door.
+
+","doorDesc
+",,,1
+void editDescription(String desc),"
+Edits description of chamber for linking purposes.
+
+","doorDesc
+",,,1
+void createDoorDesc(),"Creates the description of the door
+","isLocked, doorDesc, isArchway","createLockedDoorDesc, createUnlockedDoorDesc
+",,7
+void createLockedDoorDesc(),"Creates the description of a locked door
+","doorDesc, isTrapped, trapDesc",,,3
+void createUnlockedDoorDesc(),"creates the description of an unlocked door
+","doorDesc, isOpen, isTrapped, trapDesc",,,9
+void createDoor(),Creates a Door,"roll
+","setRoll, createLockedDoor, createUnlockedDoor, setArchway
+",,9
+void createLockedDoor(),Creates a locked door,"isLocked, rand","setArchway, addTrap
+",,4
+void createUnlockedDoor(boolean opened),Creates an unlocked door,"isLocked, rand","setArchway, setOpen, addTrap
+",,5
+void setRoll(),sets the roll and rand variables,"roll, rand
+",,"Die.d20, random.nextInt
+",3

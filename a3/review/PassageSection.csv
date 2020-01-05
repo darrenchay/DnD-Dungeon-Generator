@@ -1,0 +1,78 @@
+Method,Description,Instance Variables,Class Methods,Other Methods,Line count
+PassageSection(),"
+Creates a 10ft passage section object with no params.
+
+","roll
+","setUpPassageSection
+, createPassageSection
+, createSectionDesc
+","Die.d20
+",4
+PassageSection(int rollVal),"
+Creates a specific 10ft passage section object with a roll param.
+
+","roll
+","setUpPassageSection
+, createPassageSection
+, createSectionDesc
+",,4
+Door getDoor(),"
+Gets the door of the section.
+
+","door
+, hasDoor
+",,,4
+Monster getMonster(),"
+Gets the monster in the section.
+
+","monster
+, hasMonster
+",,,4
+String getDescription(),"
+Gets the description of the section.
+
+","description
+",,,1
+void editDescription(String desc),"
+Edit the description of this section (for linking).
+
+","description
+",,,1
+boolean isDeadEnd(),"
+Returns boolean isDeadEnd.
+
+","isDeadEnd
+",,,1
+boolean isEndOfPassage(),"
+Returns boolean endOfPassage.
+
+","endOfPassage
+",,,1
+boolean hasDoor(),"
+Returns boolean hasDoor.
+
+","hasDoor
+",,,1
+void addMonster(),"Adds a monster to the PassageSection
+","monster
+, hasMonster
+",,"monster.setType
+, Die.percentile",3
+void addDoor(),"Adds a door to the PassageSection
+","door
+, endOfPassage
+, hasDoor
+roll",,"door.setArchway
+",6
+void createPassageSection(),Loads the content of the PassageSection,"isDeadEnd
+, roll","addMonster
+, addDoor
+",,6
+void createSectionDesc(),Creates the description of the passageSection,"description
+, hasMonster
+, monster",,"monster.getMinNum
+, monster.getMaxNum
+, monster.getDescription
+, passageSection.get
+",4
+void setUpPassageSection(),Creates the table of contents for passageSection,,passageSection,,20

@@ -1,0 +1,334 @@
+package src.Dungeon;
+
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Level {
+    /**
+     * Stores the list of doors in the level and its related chamber.
+     **/
+    private HashMap<Door, Chamber> doors;
+    /**
+     * Stores the list of chambers in the level.
+     **/
+    private HashMap<Chamber, Integer> chambers;
+    /**
+     * Stores the list of chambers in the level.
+     **/
+    private HashMap<Integer, Chamber> chambersOrdered;
+    /**
+     * Stores the list of doors and its connected door from other chamber.
+     **/
+    private HashMap<Door, Door> doorToDoor;
+    /**
+     * Stores the list of doors and its connected passages.
+     **/
+    private HashMap<Door, ArrayList<Passage>> doorToPassage;
+    /**
+     * Stores the list of passages.
+     **/
+    private HashMap<Passage, Integer> passages;
+    /**
+     * Stores the list of doors and their connections in the level.
+     **/
+    private HashMap<Door, ArrayList<Chamber>> doorConnections;
+    /**
+     * Stores the list of chambers and their possible chamber connections.
+     **/
+    private HashMap<Chamber, ArrayList<Chamber>> chamberConnections;
+    /**
+     * Stores the list of doors and their door connections.
+     **/
+    private HashMap<Door, ArrayList<Door>> doorToAllDoor;
+    /**
+     * Stores the level description.
+     **/
+    private String levelDescription = "";
+    /**
+     * Stores the num of chambers.
+     **/
+    private int chamberCount = 1;
+
+
+    /**
+     * Creates a level object.
+     **/
+    public Level() {
+        doors = new HashMap<Door, Chamber>();
+        chambers = new HashMap<Chamber, Integer>();
+        chambersOrdered = new HashMap<Integer, Chamber>();
+        doorConnections = new HashMap<Door, ArrayList<Chamber>>();
+        chamberConnections = new HashMap<Chamber, ArrayList<Chamber>>();
+        doorToDoor = new HashMap<Door, Door>();
+        doorToPassage = new HashMap<Door, ArrayList<Passage>>();
+        doorToAllDoor = new HashMap<Door, ArrayList<Door>>();
+        passages = new HashMap<>();
+        init();
+    }
+
+    private void init() {
+        loadChambers();
+        loadChamberConnectionTable();
+        connectDoors();
+        addPassages();
+    }
+
+    /* Generates 5 chambers and loads them to the hashes */
+    private void loadChambers() {
+        while (chamberCount <= 5) {
+            Chamber chamber = new Chamber();
+            chambers.put(chamber, chamberCount);
+            chambersOrdered.put(chamberCount, chamber);
+            loadDoorsToHash(chamber);
+            chamberCount++;
+        }
+    }
+
+    /* Loads the doors for a chamber to the hashmap */
+    private void loadDoorsToHash(Chamber chamber) {
+        if (chamber.getDoors().size() == 5) {
+            System.out.println("ERROR: Got 5 exits for chamber: " + chambers.get(chamber));
+        }
+        /* Creates the doors and door connection hashmaps  */
+        for (int i = 0; i < chamber.getDoors().size(); i++) {
+            doors.put(chamber.getDoors().get(i), chamber);
+            doorConnections.put(chamber.getDoors().get(i), new ArrayList<Chamber>());
+            doorToAllDoor.put(chamber.getDoors().get(i), new ArrayList<Door>());
+            /*System.out.println("Door: " + chamber.getDoors().get(i) + " of Chamber: " + chambers.get(chamber));*/
+        }
+    }
+
+    /* Loads each chamber and an array of chambers it isn't connect to into a hashmap*/
+    private void loadChamberConnectionTable() {
+        int currInt;
+        for (Chamber chamber : chambers.keySet()) {
+            currInt = chambers.get(chamber);
+            ArrayList<Chamber> chambersToAdd = new ArrayList<Chamber>();
+            for (Chamber chamberConnect : chambers.keySet()) {
+                if (chambers.get(chamberConnect) != currInt) {
+                    chambersToAdd.add(chamberConnect);
+                }
+            }
+            chamberConnections.put(chamber, chambersToAdd);
+        }
+    }
+
+    /* Gets list of other doors that could be connected to a door */
+    private ArrayList<Door> getListOfDoorsToConnect(Door doorConnect) {
+        ArrayList<Door> possibleDoors = new ArrayList<Door>();
+        Chamber chamberOfDoor = doors.get(doorConnect);
+        Random rand = new Random();
+        boolean foundUnlinked = false;
+        for (Chamber chamberTargets : chamberConnections.get(chamberOfDoor)) {
+            for (Door door : chamberTargets.getDoors()) {
+                if (!door.isLinked()) {
+                    possibleDoors.add(door);
+                    foundUnlinked = true;
+                }
+            }
+            if (!foundUnlinked) {
+                possibleDoors.add(chamberTargets.getDoors().get(rand.nextInt(chamberTargets.getDoors().size())));
+            }
+        }
+        if (possibleDoors.size() == 0) {
+            System.out.println("ERROR: no possible door targets found");
+        }
+        return possibleDoors;
+    }
+
+    private void connectDoors() {
+        Random random = new Random();
+
+        for (Door door : doors.keySet()) {
+            if (!door.isLinked()) {
+                /* Gets door's chamber */
+                Chamber doorsChamber = doors.get(door);
+                /* Gets list of possible targets */
+                Door targetDoor = getListOfDoorsToConnect(door).get(random.nextInt(getListOfDoorsToConnect(door).size()));
+
+                Chamber targetChamber = doors.get(targetDoor);
+
+                /* Adds the associated chambers to those 2 doors  */
+                doorConnections.get(door).add(targetChamber);
+                doorConnections.get(targetDoor).add(doorsChamber);
+                doorToAllDoor.get(door).add(targetDoor);
+                doorToAllDoor.get(targetDoor).add(door);
+
+                /* adds the door-door relationship to the doorToDoor hashmap */
+                doorToDoor.put(door, targetDoor);
+                doorToDoor.put(targetDoor, door);
+                doorToPassage.put(door, new ArrayList<>());
+                doorToPassage.put(targetDoor, new ArrayList<>());
+
+                /* Update door and chamberConnections status */
+                targetDoor.setLinked(true);
+                door.setLinked(true);
+
+                /* remove the chambers that have been added as targets from the chamberConnections hash */
+                chamberConnections.get(doorsChamber).remove(targetChamber);
+                chamberConnections.get(targetChamber).remove(doorsChamber);
+            }
+        }
+    }
+
+    private void printDoors() {
+        for (Door door : doorConnections.keySet()) {
+            System.out.print("Door: " + door + "from chamber " + chambers.get(doors.get(door)) + " is connected to Chambers: ");
+            for (Chamber chamber : doorConnections.get(door)) {
+                System.out.print(chambers.get(chamber) + " by door: " + doorToDoor.get(door) + ", ");
+            }
+            System.out.println();
+        }
+    }
+
+    /*private void printUnlinkedDoors() {
+        System.out.println("Unlinked doors left: ");
+        for (Door door : doorConnections.keySet()) {
+            if (!door.isLinked()) {
+                System.out.println(door + "from chamber " + chambers.get(doors.get(door)));
+            }
+        }
+    }
+
+    private void printConnections() {
+        for (Chamber chamber : chamberConnections.keySet()) {
+            System.out.println("Chamber " + chambers.get(chamber) + " can connect to: ");
+            for (Chamber connections : chamberConnections.get(chamber)) {
+                System.out.print(chambers.get(connections) + ", ");
+            }
+            System.out.println();
+        }
+    }*/
+    private void addPassages() {
+        int count = 1;
+        HashMap<Door, ArrayList<Door>> cloneDoorConnections = new HashMap<>();
+        for(Door door : doorToAllDoor.keySet()) {
+            cloneDoorConnections.put(door, doorToAllDoor.get(door));
+        }
+        for (Door door : cloneDoorConnections.keySet()){
+            while (cloneDoorConnections.get(door).size() > 0) {
+                Door otherDoor = cloneDoorConnections.get(door).get(0);
+                //System.out.println("Here after getting from door" + door + "from chamber " + chambers.get(doors.get(door)) + " the door " +  otherDoor + "from chamber " + chambers.get(doors.get(otherDoor)) );
+                Passage passage = new Passage();
+                /* Creates a straight passage section and one that ends in a door */
+                PassageSection section1 = new PassageSection(1);
+                PassageSection section2 = new PassageSection(3);
+                passage.addPassageSection(section1);
+                passage.addPassageSection(section2);
+
+                /* Adds the passage link to the 2 doors */
+                passage.addDoor(door);
+                passage.addDoor(otherDoor);
+
+                doorToPassage.get(door).add(passage);
+                doorToPassage.get(otherDoor).add(passage);
+
+                cloneDoorConnections.get(door).remove(otherDoor);
+                cloneDoorConnections.get(otherDoor).remove(door);
+                passages.put(passage,count);
+                count ++;
+
+            }
+        }
+    }
+
+    /*private void addPassages2() {
+        printDoors();
+        int count = 1;
+        for (Door door : doorToDoor.keySet()) {
+            boolean containsConnection = false;
+            Passage passage = new Passage();
+             Creates a straight passage section and one that ends in a door
+            PassageSection section1 = new PassageSection(1);
+            PassageSection section2 = new PassageSection(3);
+            passage.addPassageSection(section1);
+            passage.addPassageSection(section2);
+            ArrayList<Door> doors = new ArrayList<>();
+            if(count == 1) {
+                passage.addDoor(door);
+                passage.addDoor(doorToDoor.get(door));
+                if(!doorToPassage.get(door).contains(passage)) {
+                    doorToPassage.get(door).add(passage);
+                }
+                if(!doorToPassage.get(doorToDoor.get(door)).contains(passage)) {
+                    doorToPassage.get(doorToDoor.get(door)).add(passage);
+            }
+                doors.add(door);
+                doors.add(doorToDoor.get(door));
+                passages.put(passage,count);
+                passageToDoor.put(passage, doors);
+                count++;
+                System.out.println("Added first");
+            }
+            System.out.println("Added " + door);
+            for (Passage passage1 : passageToDoor.keySet()){
+                if(passageToDoor.get(passage1).contains(door) && passageToDoor.get(passage1).contains(doorToDoor.get(door))){
+                    containsConnection = true;
+                    break;
+                }
+            }
+            if(!containsConnection || count == 1){
+                passage.addDoor(door);
+                passage.addDoor(doorToDoor.get(door));
+                doorToPassage.get(door).add(passage);
+                doorToPassage.get(doorToDoor.get(door)).add(passage);
+                doors.add(door);
+                doors.add(doorToDoor.get(door));
+                passages.put(passage,count);
+                passageToDoor.put(passage, doors);
+                count++;
+            }
+        }
+    }*/
+
+    /* Loads the description of the level. */
+    private void loadLevelDescription() {
+        for (Integer i : chambersOrdered.keySet()) {
+            levelDescription += "****************************\n";
+            levelDescription += "CHAMBER: " + i + "\n";
+            levelDescription += chambersOrdered.get(i).getDescription();
+            levelDescription += printExitsDescription(chambersOrdered.get(i));
+            levelDescription += "****************************\n";
+        }
+        levelDescription += printPassageDescription();
+    }
+
+    private String printExitsDescription(Chamber chamber) {
+        String exitsDesc = "\n";
+        int count = 1;
+        for (Door door : chamber.getDoors()) {
+            exitsDesc += "Exit " + count + " leads to passage(s): ";
+            for(int i = 0; i < doorToPassage.get(door).size(); i++) {
+                if(i == doorToPassage.get(door).size() - 1) {
+                    exitsDesc += passages.get(doorToPassage.get(door).get(i)) + "\n";
+                } else {
+                    exitsDesc += passages.get(doorToPassage.get(door).get(i)) + ", ";
+                }
+
+            }
+            count++;
+        }
+        return exitsDesc;
+    }
+
+    private String printPassageDescription() {
+        String passageDesc = "";
+        for (Passage passage : passages.keySet()) {
+            passageDesc += "Passage " + passages.get(passage) + ":\n" + passage.getDescription() + "\n";
+        }
+        return passageDesc;
+    }
+
+    /**
+     * Returns the description of the level.
+     *
+     * @return levelDescription
+     **/
+    public String getLevelDescription() {
+        /*printDoors();*/
+        loadLevelDescription();
+        return levelDescription;
+    }
+
+}

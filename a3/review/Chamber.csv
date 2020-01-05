@@ -1,0 +1,70 @@
+Method,Description,Instance Variables,Class Methods,Other Methods,Line count
+Chamber(),"
+Creates a chamber object with no params.
+
+","myContents, roll, monsters, treasures, doors
+","init
+","Die.d20
+",6
+void init(),Initializes instance variables,"mySize, description, myContents","loadRoom, createDescription
+","ChamberShape.selectChamberShape, mySize.setNumExits, myContents.chooseContents
+",6
+ArrayList<Door> getDoors(),"
+Gets the doors in that chamber.
+
+","doors
+",,,1
+void addMonster(Monster theMonster),"
+Adds a monster to chamber.
+
+","monsters
+",,"theMonster.setType, monsters.add
+",3
+ArrayList<Monster> getMonsters(),"
+Gets all monsters.
+
+","monsters
+",,,1
+void addTreasure(Treasure theTreasure),"
+Adds a treasure.
+
+","treasures
+",,"theTreasure.chooseTreasure, theTreasure.setContainer, treasures.add
+",4
+ArrayList<Treasure> getTreasures(),"
+Returns treasures.
+
+","treasures
+",,,1
+String getDescription(),"
+Returns description of the chamber.
+
+","description
+",,,1
+void addDoor(Door newDoor),"
+Adds door to the room.
+
+","doors
+",,"newDoor.addSpace, doors.add
+",3
+void loadRoom(),Loads the contents of the room,"stairs, trap, roll","addTreasure, generateDoors, addMonster ","stairs.setType, trap.chooseTrap
+",13
+void generateDoors(),Adds doors based on numExits,"door, mySize","addDoor
+","mySize.getNumExits, door.addSpace
+",4
+void createDescription(),Creates the description of the chamber,,"getChamberSizeDescription, getChamberContentDescription, getDoorsDesc
+",,3
+void getChamberSizeDescription(),Creates the description of the chamber size,"description
+",,"mySize.getShape, mySize.getLength, mySize.getWidth, mySize.getArea
+",5
+void getChamberContentDescription(),Creates the description of the chamber contents,"description, roll","getMonstersDescription, getTreasuresDescription","stairs.getDescription, trap.getDescription
+",12
+String getMonstersDescription(Monster monster),Creates the description of a monster,"monster
+",,"monster.getMinNum, monster.getMaxNum, monster.getDescription
+",1
+String getTreasuresDescription(Treasure treasure),Creates the description of treasure,"treasureDesc
+",,"treasure.getDescription, treasure.getContainer, treasure.getProtection
+",6
+void getDoorsDesc(),Creates the description of the doors,"description
+",,"mySize.getNumExits, doors.get
+",5

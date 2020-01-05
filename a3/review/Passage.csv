@@ -1,0 +1,62 @@
+Method,Description,Instance Variables,Class Methods,Other Methods,Line count
+Passage(),"
+Creates a passage object.
+
+","thePassage, 
+doors
+",,,3
+Passage(Door door),"
+Creates a passage object with the connecting door.
+
+","thePassage
+, doors
+","addDoor
+",,4
+ArrayList getDoors(),"
+Returns the list of doors.
+
+","doors
+",,,1
+Door getDoor(int i),"
+Gets door object at index i in array.
+
+","doors
+",,"doors.size
+, doors.get
+",4
+void addPassageSection(PassageSection toAdd),"
+Adds a passage section to the passage.
+
+","thePassage
+, passageSize",,"thePassage.add
+, toAdd.hasDoor
+, toAdd.getDoor
+",5
+void addDoor(Door newDoor),"
+Adds a door to the passage section.
+
+","doors
+",,"newDoor.addSpace
+, doors.add
+",2
+String getDescription(),"
+Gets description of passage.
+
+","description
+","createPassageDesc
+",,2
+int getPassageSize(),"
+Gets the passage size.
+
+","passageSize
+",,,1
+PassageSection getPassageSection(int i),"
+Gets the passage section at index i.
+
+","thePassage
+",,"thePassage.get
+",1
+void createPassageDesc(),Creates the description of the passage,"description
+, section
+, thePassage",,"section.getDescription
+",2
